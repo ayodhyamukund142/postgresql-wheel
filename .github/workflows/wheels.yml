@@ -10,8 +10,19 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      max-parallel: 4
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-22.04]
+        python-version: [3.7, 3.8, 3.9, 3.10]
+        include:
+          - python-version: '3.7'
+            py-short: 'py37'
+          - python-version: '3.8'
+            py-short: 'py38'
+          - python-version: '3.9'
+            py-short: 'py39'
+          - python-version: '3.10'
+            py-short: 'py310'
 
     steps:
       - uses: actions/checkout@v2
@@ -25,11 +36,11 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BEFORE_ALL_LINUX: ${{ format('bash src/tools/install_pg_rpm.sh {0}', github.ref) }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
